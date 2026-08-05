@@ -1,11 +1,23 @@
+# Python
 __pycache__/
 *.pyc
 
-.venv/
-venv/
-
-models/*.pkl
-
+# Jupyter
 .ipynb_checkpoints/
 
+# Virtual envs
+.venv/
+env/
+
+# Models
+models/*.pkl
+
+# MLflow
+mlruns/
+mlflow.db
+
+# Processed data
 data/processed/
+
+# VS Code
+.vscode/
