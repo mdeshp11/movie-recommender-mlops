@@ -22,10 +22,15 @@ trainset, testset = train_test_split(data, test_size=0.2, random_state=42)
 
 experiments = [
     {"n_factors" : 50},
+    {"n_factors" : 55},
     {"n_factors" : 60},
     {"n_factors" : 65},
     {"n_factors" : 70},
     {"n_factors" : 75},
+    {"n_factors" : 80},
+    {"n_factors" : 85},
+    {"n_factors" : 90},
+    {"n_factors" : 95},
     {"n_factors" : 100},
     {"n_factors" : 125},
     {"n_factors" : 150},
