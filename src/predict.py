@@ -8,7 +8,7 @@ movies = pd.read_csv(DATA_PATH / "movies.csv")
 ratings = pd.read_csv(DATA_PATH / "ratings.csv")
 
 # Load best-performing model
-with open(MODEL_PATH / "movie_recommender_95.pkl", "rb") as f:
+with open(MODEL_PATH / "best_movie_recommender.pkl", "rb") as f:
     model = pickle.load(f)
 
 

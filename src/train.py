@@ -1,6 +1,7 @@
 import pickle
 import pandas as pd
 import mlflow
+import mlflow.sklearn
 from surprise import Dataset
 from surprise import Reader
 from surprise import SVD
@@ -38,6 +39,10 @@ experiments = [
     {"n_factors" : 200}
 ]
 
+best_rmse = float("inf")
+best_model = None
+best_n_factors = None
+
 for exp in experiments:
 
     n_factors = exp["n_factors"]
@@ -48,6 +53,11 @@ for exp in experiments:
         predictions = model.test(testset)
 
         rmse = accuracy.rmse(predictions, verbose=False)
+
+        if rmse < best_rmse:
+            best_rmse = rmse
+            best_model = model
+            best_n_factors = n_factors
 
         mae = accuracy.mae(
             predictions,
@@ -77,3 +87,22 @@ for exp in experiments:
 
         mlflow.log_artifact(str(model_path))
         print(f"SVD({n_factors}) -> RMSE={rmse:.4f}")
+
+
+best_model_path = MODEL_PATH / "best_movie_recommender.pkl"
+
+with open(best_model_path, "wb") as f:
+    pickle.dump(best_model, f)
+
+print("\n" + "=" * 50)
+print("BEST MODEL SUMMARY")
+print("=" * 50)
+print(f"Best n_factors: {best_n_factors}")
+print(f"Best RMSE: {best_rmse:.4f}")
+print(f"Saved to: {best_model_path}")
+
+
+with mlflow.start_run(run_name="Best_Model_Summary"):
+    mlflow.log_param("best_n_factors", best_n_factors)
+    mlflow.log_metric("best_rmse", best_rmse)
+    mlflow.log_artifact(str(best_model_path))
