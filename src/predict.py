@@ -34,8 +34,27 @@ def get_recommendations(user_id, top_n=10):
 
     recommendations.sort(key=lambda x: x[1], reverse=True)
 
-    return recommendations[:top_n]
+    top_recommendations = recommendations[:top_n]
+    results = []
 
+    for movie_id, score in top_recommendations:
+        movie_info = movies.loc[movies["movieId"] == movie_id]
+
+        if movie_info.empty:
+            title = f"Unknown Movie ({movie_id})"
+            genres= "Unknown Genre"
+        else:
+            title = movie_info["title"].iloc[0]
+            genres= movie_info["genres"].iloc[0]
+
+        results.append({
+            "movieId": movie_id,
+            "title": title,
+            "genres": genres,
+            "predicted_rating": score
+        })
+
+    return results
 
 def display_recommendations(user_id, top_n=10):
     recommendations = get_recommendations(user_id=user_id, top_n=top_n)
