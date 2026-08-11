@@ -1,0 +1,17 @@
+.git
+.gitignore
+
+__pycache__
+*.pyc
+
+.ipynb_checkpoints
+
+mlruns
+mlflow.db
+
+notebooks
+
+.venv
+env
+
+models/movie_recommender_*.pkl

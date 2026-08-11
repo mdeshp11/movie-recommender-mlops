@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from predict import get_recommendations
+from src.predict import get_recommendations
 
 app = FastAPI()
 

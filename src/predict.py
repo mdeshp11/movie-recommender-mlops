@@ -2,7 +2,7 @@ import pickle
 import pandas as pd
 from functools import lru_cache
 
-from config import DATA_PATH, MODEL_PATH
+from src.config import DATA_PATH, MODEL_PATH
 
 # Load data
 movies = pd.read_csv(DATA_PATH / "movies.csv")
@@ -28,7 +28,7 @@ with open(MODEL_PATH / "best_movie_recommender.pkl", "rb") as f:
     model = pickle.load(f)
 
 @lru_cache(maxsize=1000)
-def get_recommendations(user_id, top_n=100):
+def get_recommendations(user_id, top_n=10):
     """
     Generate top N movie recommendations for a user.
     """
@@ -73,7 +73,7 @@ def get_recommendations(user_id, top_n=100):
 
     return results
 
-def display_recommendations(user_id, top_n=100):
+def display_recommendations(user_id, top_n=10):
     recommendations = get_recommendations(user_id=user_id, top_n=top_n)
 
     print("\n" + "=" * 80)

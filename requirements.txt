@@ -1,5 +1,8 @@
 pandas
+fastapi
+uvicorn
 numpy
 scikit-learn
 scikit-surprise
 jupyter
+mlflow

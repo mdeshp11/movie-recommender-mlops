@@ -8,7 +8,7 @@ from surprise import SVD
 from surprise import accuracy
 from surprise.model_selection import train_test_split
 
-from config import DATA_PATH, MODEL_PATH
+from src.config import DATA_PATH, MODEL_PATH
 
 mlflow.set_experiment("Movie Recommendation System")
 ratings = pd.read_csv(DATA_PATH / "ratings.csv")
