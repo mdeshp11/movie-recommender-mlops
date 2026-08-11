@@ -1,5 +1,6 @@
 import pickle
 import pandas as pd
+from functools import lru_cache
 
 from config import DATA_PATH, MODEL_PATH
 
@@ -7,18 +8,33 @@ from config import DATA_PATH, MODEL_PATH
 movies = pd.read_csv(DATA_PATH / "movies.csv")
 ratings = pd.read_csv(DATA_PATH / "ratings.csv")
 
+# Create a lookup dictionary for movie details for faster access during recommendation generation
+movie_lookup = (
+    movies
+    .set_index("movieId")
+    [["title", "genres"]]
+    .to_dict("index")
+)
+
+user_ratings_cache = (
+    ratings
+    .groupby("userId")["movieId"]
+    .apply(set)
+    .to_dict()
+)
+
 # Load best-performing model
 with open(MODEL_PATH / "best_movie_recommender.pkl", "rb") as f:
     model = pickle.load(f)
 
-
-def get_recommendations(user_id, top_n=10):
+@lru_cache(maxsize=1000)
+def get_recommendations(user_id, top_n=100):
     """
     Generate top N movie recommendations for a user.
     """
 
     # Movies already rated by the user
-    rated_movies = set(ratings[ratings["userId"] == user_id]["movieId"])
+    rated_movies = user_ratings_cache.get(user_id, set())
 
     # Candidate movies = movies user hasn't rated
     candidate_movies = movies[~movies["movieId"].isin(rated_movies)]
@@ -38,34 +54,37 @@ def get_recommendations(user_id, top_n=10):
     results = []
 
     for movie_id, score in top_recommendations:
-        movie_info = movies.loc[movies["movieId"] == movie_id]
+        movie_data = movie_lookup.get(
+            movie_id,
+            {
+                "title": f"Unknown Movie ({movie_id})",
+                "genres": "Unknown Genre"
+            }
+        )
 
-        if movie_info.empty:
-            title = f"Unknown Movie ({movie_id})"
-            genres= "Unknown Genre"
-        else:
-            title = movie_info["title"].iloc[0]
-            genres= movie_info["genres"].iloc[0]
-
-        results.append({
-            "movieId": movie_id,
-            "title": title,
-            "genres": genres,
-            "predicted_rating": score
-        })
+        results.append(
+            {
+                "movieId": int(movie_id),
+                "title": movie_data["title"],
+                "genres": movie_data["genres"],
+                "predicted_rating": round(score, 2)
+            }
+        )
 
     return results
 
-def display_recommendations(user_id, top_n=10):
+def display_recommendations(user_id, top_n=100):
     recommendations = get_recommendations(user_id=user_id, top_n=top_n)
 
-    print("\n" + "=" * 60)
+    print("\n" + "=" * 80)
     print(f"Top {top_n} Recommendations for User {user_id}")
-    print("=" * 60)
+    print("=" * 80)
 
-    for movie_id, score in recommendations:
-        title = movies.loc[movies["movieId"] == movie_id, "title"].values[0]
-        print(f"{title} -> Predicted Rating: {score:.2f}")
+    for movie in recommendations:
+        print(f"{movie['title']} "
+            f"({movie['genres']}) "
+            f"-> Predicted Rating: {movie['predicted_rating']}"
+        )
 
 
 if __name__ == "__main__":
